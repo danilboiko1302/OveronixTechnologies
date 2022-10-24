@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  user:
+    container_name: user
+    build:
+      context: ./microservices/user
+      dockerfile: Dockerfile
+    volumes:
+      - ./microservices/user:/usr/src/app
+    command: fresh
+    ports:
+      - 3000:3000
+    working_dir: /usr/src/app
+    depends_on:
+      - scylladb
+      - redis
+    restart: unless-stopped
+    networks:
+      - backend
+
+  postgresdb:
+    container_name: postgresdb
+    image: postgres:12
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_DB=users
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
