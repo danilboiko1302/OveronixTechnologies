@@ -27,15 +27,49 @@ func UserController(router *gin.Engine) {
 		})
 
 		userGroup.PUT("/user/:id", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"it works": "!!!"})
+			id, ok := c.GetQuery("id")
+
+			if !ok {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "please enter id"})
+				c.Abort()
+				return
+			}
+
+			response, err := services.GetUser(id)
+
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.Abort()
+				return
+			}
+
+			c.JSON(http.StatusOK, response)
 		})
 
 		userGroup.GET("/user", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"it works": "!!!"})
+			response, err := services.GetUsers()
+
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.Abort()
+				return
+			}
+
+			c.JSON(http.StatusOK, gin.H{"users": response})
 		})
 
 		userGroup.GET("/user/:id", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"it works": "!!!"})
+			id := c.Param("id")
+
+			response, err := services.GetUser(id)
+
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.Abort()
+				return
+			}
+
+			c.JSON(http.StatusOK, response)
 		})
 
 		userGroup.DELETE("/user/:id", func(c *gin.Context) {

@@ -2,10 +2,15 @@ package queries
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 	"user/app/api/dto"
 	model "user/app/db/models"
+	voc "user/app/vocabulary"
 
 	"github.com/jackc/pgx"
 )
@@ -14,6 +19,61 @@ var SQLSession *sqlSession
 
 type sqlSession struct {
 	connection *pgx.Conn
+}
+
+func (s *sqlSession) GetUsers() ([]model.User, error) {
+	rows, err := s.connection.Query(`SELECT id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD') FROM users`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var result []model.User
+	for rows.Next() {
+		var user model.User
+		err := rows.Scan(
+			&user.Id,
+			&user.Login,
+			&user.Password,
+			&user.FirstName,
+			&user.LastName,
+			&user.Birthday,
+		)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, user)
+	}
+
+	return result, nil
+}
+
+func (s *sqlSession) GetUser(id string) (*model.User, error) {
+	row := s.connection.QueryRow(`SELECT id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD') FROM users WHERE id = $1;`,
+		id,
+	)
+
+	var user model.User
+
+	err := row.Scan(
+		&user.Id,
+		&user.Login,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.Birthday,
+	)
+
+	if err != nil {
+		// err == sql.ErrNoRows not work ???
+		if err.Error() == strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) {
+			return nil, errors.New(voc.USER_NOT_FOUND)
+		}
+
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (s *sqlSession) CreateUser(data *dto.CreateUserDto) (*model.User, error) {

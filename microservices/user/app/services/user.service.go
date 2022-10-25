@@ -8,6 +8,14 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func GetUsers() ([]model.User, error) {
+	return queries.SQLSession.GetUsers()
+}
+
+func GetUser(id string) (*model.User, error) {
+	return queries.SQLSession.GetUser(id)
+}
+
 func CreateUser(data *dto.CreateUserDto) (*model.User, error) {
 	hash, err := hashPassword(data.Password)
 
