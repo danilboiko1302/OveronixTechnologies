@@ -3,11 +3,11 @@ package dto
 import "time"
 
 type CreateUserDto struct {
-	Login     string    `json:"login" validate:"required,min=3"`
-	Password  string    `json:"password" validate:"required,min=8"`
-	FirstName string    `json:"firstName" validate:"required"`
-	LastName  string    `json:"lastName" validate:"required"`
-	Birthday  time.Time `json:"birthday" validate:"required"`
+	Login     string `json:"login" validate:"required,min=3"`
+	Password  string `json:"password" validate:"required,min=8"`
+	FirstName string `json:"firstName" validate:"required"`
+	LastName  string `json:"lastName" validate:"required"`
+	Birthday  string `json:"birthday" validate:"required,date"`
 }
 
 type UpdateUserDto struct {
