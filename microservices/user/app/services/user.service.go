@@ -12,6 +12,10 @@ func GetUsers() ([]model.User, error) {
 	return queries.SQLSession.GetUsers()
 }
 
+func DeleteUser(id string) (*model.User, error) {
+	return queries.SQLSession.DeleteUser(id)
+}
+
 func GetUser(id string) (*model.User, error) {
 	return queries.SQLSession.GetUser(id)
 }

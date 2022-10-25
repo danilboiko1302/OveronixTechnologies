@@ -48,6 +48,37 @@ func (s *sqlSession) GetUsers() ([]model.User, error) {
 	return result, nil
 }
 
+func (s *sqlSession) DeleteUser(id string) (*model.User, error) {
+	row := s.connection.QueryRow(`DELETE FROM users WHERE id = $1 RETURNING id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD');`,
+		id,
+	)
+
+	var (
+		user model.User
+		err  error
+	)
+
+	err = row.Scan(
+		&user.Id,
+		&user.Login,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.Birthday,
+	)
+
+	if err != nil {
+		// err == sql.ErrNoRows not work ???
+		if err.Error() == strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) {
+			return nil, errors.New(voc.USER_NOT_FOUND)
+		}
+
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (s *sqlSession) GetUser(id string) (*model.User, error) {
 	row := s.connection.QueryRow(`SELECT id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD') FROM users WHERE id = $1;`,
 		id,

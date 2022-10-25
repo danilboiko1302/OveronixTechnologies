@@ -73,7 +73,17 @@ func UserController(router *gin.Engine) {
 		})
 
 		userGroup.DELETE("/user/:id", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"it works": "!!!"})
+			id := c.Param("id")
+
+			response, err := services.DeleteUser(id)
+
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				c.Abort()
+				return
+			}
+
+			c.JSON(http.StatusOK, response)
 		})
 	}
 }
