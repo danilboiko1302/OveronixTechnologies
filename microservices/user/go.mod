@@ -10,4 +10,5 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.7
 	github.com/pkg/errors v0.9.1 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
 )

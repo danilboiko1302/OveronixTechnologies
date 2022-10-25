@@ -1,29 +1,23 @@
 package queries
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"os"
 	"user/app/api/dto"
 	model "user/app/db/models"
 
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx"
 )
 
 var SQLSession *sqlSession
 
 type sqlSession struct {
-	connection *sql.DB
+	connection *pgx.Conn
 }
 
 func (s *sqlSession) CreateUser(data *dto.CreateUserDto) (*model.User, error) {
-	stmt, err := s.connection.Prepare("INSERT INTO users (login, password, firstName, lastName, birthday) VALUES (? ? ? ? ?);")
-	if err != nil {
-		return nil, err
-	}
-
-	defer stmt.Close()
-	result, err := stmt.Exec(
+	row := s.connection.QueryRow(`INSERT INTO users (login, password, "firstName", "lastName", birthday) VALUES ($1, $2, $3, $4, $5) RETURNING id;`,
 		data.Login,
 		data.Password,
 		data.FirstName,
@@ -31,31 +25,46 @@ func (s *sqlSession) CreateUser(data *dto.CreateUserDto) (*model.User, error) {
 		data.Birthday,
 	)
 
+	var (
+		id  int
+		err error
+	)
+
+	err = row.Scan(&id)
+
 	if err != nil {
-		fmt.Println("4")
 		return nil, err
 	}
 
-	fmt.Println(result)
-
-	return &model.User{}, nil
+	return &model.User{
+		Id:        id,
+		Login:     data.Login,
+		Password:  data.Password,
+		FirstName: data.FirstName,
+		LastName:  data.LastName,
+		Birthday:  data.Birthday,
+	}, nil
 }
 
 func Init() error {
-
-	connection, err := sql.Open("postgres",
-		fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-			os.Getenv("SQL_HOST"),
-			os.Getenv("SQL_PORT"),
-			os.Getenv("SQL_USER"),
-			os.Getenv("SQL_PASSWORD"),
-			os.Getenv("SQL_DB")))
+	config, err := pgx.ParseConnectionString(fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		os.Getenv("SQL_USER"),
+		os.Getenv("SQL_PASSWORD"),
+		os.Getenv("SQL_HOST"),
+		os.Getenv("SQL_PORT"),
+		os.Getenv("SQL_DB")))
 
 	if err != nil {
 		return err
 	}
 
-	if err = connection.Ping(); err != nil {
+	connection, err := pgx.Connect(config)
+
+	if err != nil {
+		return err
+	}
+
+	if err = connection.Ping(context.Background()); err != nil {
 		return err
 	}
 
