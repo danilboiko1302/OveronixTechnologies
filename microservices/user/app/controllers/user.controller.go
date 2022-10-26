@@ -31,7 +31,7 @@ func (limit *Limit) add() error {
 
 	if limit.current == 0 {
 		go func() {
-			<-time.NewTimer(time.Second * 5).C
+			<-time.NewTimer(time.Minute).C
 			limit.zero()
 		}()
 	}
