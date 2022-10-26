@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx"
 )
@@ -26,7 +27,17 @@ func Init() error {
 		return err
 	}
 
-	connection, err := pgx.Connect(config)
+	var connection *pgx.Conn
+
+	for i := 0; i < 3; i++ {
+		connection, err = pgx.Connect(config)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("Waiting 1 minute...")
+			<-time.NewTimer(time.Minute).C
+		}
+	}
 
 	if err != nil {
 		return err
