@@ -6,78 +6,133 @@ import (
 	middlewares "user/app/controllers/middleware"
 	"user/app/services"
 
+	_ "user/docs"
+
 	"github.com/gin-gonic/gin"
 )
 
-func UserController(router *gin.Engine) {
-	userGroup := router.Group("/users")
-	{
-		userGroup.POST("/user", middlewares.Validator(dto.CreateUserDto{}), func(c *gin.Context) {
-			data := c.MustGet("validData").(*dto.CreateUserDto)
+//!!!!!!!!
+//controller was reworked, swagger needs one annotation per one func
 
-			response, err := services.CreateUser(data)
+// CreateUser             godoc
+// @Summary      Create User
+// @Description  Create User
+// @Tags         user
+// @Produce      json
+// @Param request body dto.CreateUserDto true "data"
+// @Success      200 {object} model.User
+// @Failure      400  {string} string "Validation error"
+// @Failure      500  {string} string  "Internal error"
+// @Router       /user [post]
+func CreateUser(router *gin.Engine) {
+	router.POST("/users/user", middlewares.Validator(dto.CreateUserDto{}), func(c *gin.Context) {
+		data := c.MustGet("validData").(*dto.CreateUserDto)
 
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				c.Abort()
-				return
-			}
+		response, err := services.CreateUser(data)
 
-			c.JSON(http.StatusOK, response)
-		})
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
 
-		userGroup.PUT("/user/:id", middlewares.Validator(dto.UpdateUserDto{}), func(c *gin.Context) {
-			id := c.Param("id")
-			data := c.MustGet("validData").(*dto.UpdateUserDto)
-			response, err := services.UpdateUser(data, id)
+		c.JSON(http.StatusOK, response)
+	})
 
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				c.Abort()
-				return
-			}
+}
 
-			c.JSON(http.StatusOK, response)
-		})
+// @Summary      Get User
+// @Description  Get User
+// @Tags         user
+// @Produce      json
+// @Param        id   path      int  true  "Account ID"
+// @Success      200 {object} model.User
+// @Failure      400  {string} string "not found"
+// @Failure      500  {string} string  "Internal error"
+// @Router       /user/{id} [get]
+func GetUser(router *gin.Engine) {
+	router.GET("/users/user/:id", func(c *gin.Context) {
+		id := c.Param("id")
 
-		userGroup.GET("/user", func(c *gin.Context) {
-			response, err := services.GetUsers()
+		response, err := services.GetUser(id)
 
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				c.Abort()
-				return
-			}
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
 
-			c.JSON(http.StatusOK, gin.H{"users": response})
-		})
+		c.JSON(http.StatusOK, response)
+	})
+}
 
-		userGroup.GET("/user/:id", func(c *gin.Context) {
-			id := c.Param("id")
+// @Summary      Get All Users
+// @Description  Get All Users
+// @Tags         user
+// @Produce      json
+// @Success      200 {array} model.User
+// @Failure      500  {string} string  "Internal error"
+// @Router       /user [get]
+func GetUsers(router *gin.Engine) {
+	router.GET("/users/user", func(c *gin.Context) {
+		response, err := services.GetUsers()
 
-			response, err := services.GetUser(id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
 
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				c.Abort()
-				return
-			}
+		c.JSON(http.StatusOK, gin.H{"users": response})
+	})
+}
 
-			c.JSON(http.StatusOK, response)
-		})
+// @Summary      Delete User
+// @Description  Delete User
+// @Tags         user
+// @Produce      json
+// @Param        id   path      int  true  "Account ID"
+// @Success      200 {object} model.User
+// @Failure      400  {string} string "not found"
+// @Failure      500  {string} string  "Internal error"
+// @Router       /user/{id} [delete]
+func DeleteUser(router *gin.Engine) {
+	router.DELETE("/users/user/:id", func(c *gin.Context) {
+		id := c.Param("id")
 
-		userGroup.DELETE("/user/:id", func(c *gin.Context) {
-			id := c.Param("id")
+		response, err := services.DeleteUser(id)
 
-			response, err := services.DeleteUser(id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
 
-			if err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				c.Abort()
-				return
-			}
+		c.JSON(http.StatusOK, response)
+	})
+}
 
-			c.JSON(http.StatusOK, response)
-		})
-	}
+// @Summary      Update User
+// @Description  Update User
+// @Tags         user
+// @Produce      json
+// @Param request body dto.UpdateUserDto true "data"
+// @Success      200 {object} model.User
+// @Failure      400  {string} string "Validation error"
+// @Failure      500  {string} string  "Internal error"
+// @Router       /user [put]
+func UpdateUser(router *gin.Engine) {
+	router.PUT("/users/user/:id", middlewares.Validator(dto.UpdateUserDto{}), func(c *gin.Context) {
+		id := c.Param("id")
+		data := c.MustGet("validData").(*dto.UpdateUserDto)
+		response, err := services.UpdateUser(data, id)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.Abort()
+			return
+		}
+
+		c.JSON(http.StatusOK, response)
+	})
 }

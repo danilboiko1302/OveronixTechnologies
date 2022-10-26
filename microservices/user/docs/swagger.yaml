@@ -1,0 +1,200 @@
+basePath: /users
+definitions:
+  dto.CreateUserDto:
+    properties:
+      birthday:
+        example: "2000-01-01"
+        type: string
+      firstName:
+        example: firstName
+        type: string
+      lastName:
+        example: lastName
+        type: string
+      login:
+        example: login
+        minLength: 3
+        type: string
+      password:
+        example: password
+        minLength: 8
+        type: string
+    required:
+    - birthday
+    - firstName
+    - lastName
+    - login
+    - password
+    type: object
+  dto.UpdateUserDto:
+    properties:
+      birthday:
+        example: "2000-01-01"
+        type: string
+      firstName:
+        example: firstName
+        type: string
+      lastName:
+        example: lastName
+        type: string
+      password:
+        example: password
+        minLength: 8
+        type: string
+    type: object
+  model.User:
+    properties:
+      birthday:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: User CRUD.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: OveronixTechnologies
+  version: "1.0"
+paths:
+  /user:
+    get:
+      description: Get All Users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Get All Users
+      tags:
+      - user
+    post:
+      description: Create User
+      parameters:
+      - description: data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Validation error
+          schema:
+            type: string
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Create User
+      tags:
+      - user
+    put:
+      description: Update User
+      parameters:
+      - description: data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Validation error
+          schema:
+            type: string
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Update User
+      tags:
+      - user
+  /user/{id}:
+    delete:
+      description: Delete User
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: not found
+          schema:
+            type: string
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Delete User
+      tags:
+      - user
+    get:
+      description: Get User
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: not found
+          schema:
+            type: string
+        "500":
+          description: Internal error
+          schema:
+            type: string
+      summary: Get User
+      tags:
+      - user
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

@@ -7,7 +7,11 @@ import (
 func InitControllers() *gin.Engine {
 	router := gin.Default()
 
-	UserController(router)
-
+	CreateUser(router)
+	UpdateUser(router)
+	GetUser(router)
+	GetUsers(router)
+	DeleteUser(router)
+	SwaggerController(router)
 	return router
 }
