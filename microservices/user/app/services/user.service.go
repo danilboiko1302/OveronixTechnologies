@@ -43,11 +43,11 @@ func checkUpdateValues(data *dto.UpdateUserDto) (map[string]string, error) {
 	var newValues map[string]string = make(map[string]string)
 
 	if data.FirstName != "" {
-		newValues["\"firstName\""] = data.FirstName
+		newValues["\"first_name\""] = data.FirstName
 	}
 
 	if data.LastName != "" {
-		newValues["\"lastName\""] = data.LastName
+		newValues["\"last_name\""] = data.LastName
 	}
 
 	if data.Birthday != "" {

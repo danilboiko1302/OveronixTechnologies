@@ -218,8 +218,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "birthday",
-                "firstName",
-                "lastName",
+                "first_name",
+                "last_name",
                 "login",
                 "password"
             ],
@@ -228,13 +228,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2000-01-01"
                 },
-                "firstName": {
+                "first_name": {
                     "type": "string",
-                    "example": "firstName"
+                    "example": "first_name"
                 },
-                "lastName": {
+                "last_name": {
                     "type": "string",
-                    "example": "lastName"
+                    "example": "last_name"
                 },
                 "login": {
                     "type": "string",
@@ -255,13 +255,13 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2000-01-01"
                 },
-                "firstName": {
+                "first_name": {
                     "type": "string",
-                    "example": "firstName"
+                    "example": "first_name"
                 },
-                "lastName": {
+                "last_name": {
                     "type": "string",
-                    "example": "lastName"
+                    "example": "last_name"
                 },
                 "password": {
                     "type": "string",
@@ -276,13 +276,13 @@ const docTemplate = `{
                 "birthday": {
                     "type": "string"
                 },
-                "firstName": {
+                "first_name": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "lastName": {
+                "last_name": {
                     "type": "string"
                 },
                 "login": {

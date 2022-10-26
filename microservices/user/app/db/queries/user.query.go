@@ -15,7 +15,7 @@ import (
 )
 
 func (s *sqlSession) GetUsers() ([]model.User, error) {
-	rows, err := s.connection.Query(`SELECT id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD') FROM users`)
+	rows, err := s.connection.Query(`SELECT id, login, password, "first_name", "last_name", to_char(birthday, 'YYYY-MM-DD') FROM users`)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func (s *sqlSession) GetUsers() ([]model.User, error) {
 }
 
 func (s *sqlSession) DeleteUser(id string) (*model.User, error) {
-	row := s.connection.QueryRow(`DELETE FROM users WHERE id = $1 RETURNING id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD');`,
+	row := s.connection.QueryRow(`DELETE FROM users WHERE id = $1 RETURNING id, login, password, "first_name", "last_name", to_char(birthday, 'YYYY-MM-DD');`,
 		id,
 	)
 
@@ -126,7 +126,7 @@ func buildPreparedStatementForUpdate(s *sqlSession, data map[string]string, id s
 
 	sqlRequest.WriteString(" WHERE id = $")
 	sqlRequest.WriteString(strconv.Itoa(len(values) + 1))
-	sqlRequest.WriteString(" RETURNING id, login, password, \"firstName\", \"lastName\", to_char(birthday, 'YYYY-MM-DD');")
+	sqlRequest.WriteString(" RETURNING id, login, password, \"first_name\", \"last_name\", to_char(birthday, 'YYYY-MM-DD');")
 
 	return insertData(s, sqlRequest.String(), values, id)
 }
@@ -170,7 +170,7 @@ func insertData(s *sqlSession, sqlRequest string, values []string, id string) (*
 }
 
 func (s *sqlSession) GetUser(id string) (*model.User, error) {
-	row := s.connection.QueryRow(`SELECT id, login, password, "firstName", "lastName", to_char(birthday, 'YYYY-MM-DD') FROM users WHERE id = $1;`,
+	row := s.connection.QueryRow(`SELECT id, login, password, "first_name", "last_name", to_char(birthday, 'YYYY-MM-DD') FROM users WHERE id = $1;`,
 		id,
 	)
 
@@ -198,7 +198,7 @@ func (s *sqlSession) GetUser(id string) (*model.User, error) {
 }
 
 func (s *sqlSession) CreateUser(data *dto.CreateUserDto) (*model.User, error) {
-	row := s.connection.QueryRow(`INSERT INTO users (login, password, "firstName", "lastName", birthday) VALUES ($1, $2, $3, $4, $5) RETURNING id;`,
+	row := s.connection.QueryRow(`INSERT INTO users (login, password, "first_name", "last_name", birthday) VALUES ($1, $2, $3, $4, $5) RETURNING id;`,
 		data.Login,
 		data.Password,
 		data.FirstName,

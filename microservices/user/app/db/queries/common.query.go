@@ -55,8 +55,8 @@ func Init() error {
 		id serial not null,
 		login varchar not null,
 		password varchar not null,
-		firstName varchar not null,
-		lastName varchar not null,
+		first_name varchar not null,
+		last_name varchar not null,
 		birthday date not null,
 		PRIMARY KEY (id)
 	)`)
