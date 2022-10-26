@@ -26,16 +26,10 @@ func UserController(router *gin.Engine) {
 			c.JSON(http.StatusOK, response)
 		})
 
-		userGroup.PUT("/user/:id", func(c *gin.Context) {
-			id, ok := c.GetQuery("id")
-
-			if !ok {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "please enter id"})
-				c.Abort()
-				return
-			}
-
-			response, err := services.GetUser(id)
+		userGroup.PUT("/user/:id", middlewares.Validator(dto.UpdateUserDto{}), func(c *gin.Context) {
+			id := c.Param("id")
+			data := c.MustGet("validData").(*dto.UpdateUserDto)
+			response, err := services.UpdateUser(data, id)
 
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

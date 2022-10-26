@@ -1,7 +1,5 @@
 package dto
 
-import "time"
-
 type CreateUserDto struct {
 	Login     string `json:"login" validate:"required,min=3"`
 	Password  string `json:"password" validate:"required,min=8"`
@@ -11,8 +9,8 @@ type CreateUserDto struct {
 }
 
 type UpdateUserDto struct {
-	Password  string    `json:"password"`
-	FirstName string    `json:"firstName"`
-	LastName  string    `json:"lastName"`
-	Birthday  time.Time `json:"birthday"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Birthday  string `json:"birthday" validate:"omitempty,date"`
 }

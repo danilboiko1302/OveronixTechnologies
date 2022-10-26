@@ -1,12 +1,14 @@
 package queries
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"user/app/api/dto"
 	model "user/app/db/models"
@@ -77,6 +79,103 @@ func (s *sqlSession) DeleteUser(id string) (*model.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (s *sqlSession) UpdateUser(data map[string]string, id string) (*model.User, error) {
+	row, err := buildPreparedStatementForUpdate(s, data, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var user model.User
+
+	err = row.Scan(
+		&user.Id,
+		&user.Login,
+		&user.Password,
+		&user.FirstName,
+		&user.LastName,
+		&user.Birthday,
+	)
+
+	if err != nil {
+		// err == sql.ErrNoRows not work ???
+		if err.Error() == strings.Replace(sql.ErrNoRows.Error(), "sql: ", "", 1) {
+			return nil, errors.New(voc.USER_NOT_FOUND)
+		}
+
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func buildPreparedStatementForUpdate(s *sqlSession, data map[string]string, id string) (*pgx.Row, error) {
+	var sqlRequest bytes.Buffer
+	var values []string = make([]string, 0, len(data))
+
+	sqlRequest.WriteString("UPDATE users SET")
+
+	for key, val := range data {
+		sqlRequest.WriteString(" ")
+		sqlRequest.WriteString(key)
+		sqlRequest.WriteString(" = $")
+
+		values = append(values, val)
+
+		sqlRequest.WriteString(strconv.Itoa(len(values)))
+
+		if len(values) != len(data) {
+			sqlRequest.WriteString(",")
+		}
+	}
+
+	sqlRequest.UnreadRune()
+
+	sqlRequest.WriteString(" WHERE id = $")
+	sqlRequest.WriteString(strconv.Itoa(len(values) + 1))
+	sqlRequest.WriteString(" RETURNING id, login, password, \"firstName\", \"lastName\", to_char(birthday, 'YYYY-MM-DD');")
+
+	return insertData(s, sqlRequest.String(), values, id)
+}
+
+func insertData(s *sqlSession, sqlRequest string, values []string, id string) (*pgx.Row, error) {
+	if len(values) == 1 {
+		return s.connection.QueryRow(sqlRequest,
+			values[0],
+			id,
+		), nil
+	}
+
+	if len(values) == 2 {
+		return s.connection.QueryRow(sqlRequest,
+			values[0],
+			values[1],
+			id,
+		), nil
+	}
+
+	if len(values) == 3 {
+		return s.connection.QueryRow(sqlRequest,
+			values[0],
+			values[1],
+			values[2],
+			id,
+		), nil
+	}
+
+	if len(values) == 4 {
+		return s.connection.QueryRow(sqlRequest,
+			values[0],
+			values[1],
+			values[2],
+			values[3],
+			id,
+		), nil
+	}
+
+	return nil, errors.New(voc.TOO_MUCH_DATA_FOR_UPDATE)
 }
 
 func (s *sqlSession) GetUser(id string) (*model.User, error) {

@@ -17,6 +17,8 @@ func Validator(i interface{}) gin.HandlerFunc {
 		switch i.(type) {
 		case dto.CreateUserDto:
 			data = &dto.CreateUserDto{}
+		case dto.UpdateUserDto:
+			data = &dto.UpdateUserDto{}
 
 		default:
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "dto type is invalid"})

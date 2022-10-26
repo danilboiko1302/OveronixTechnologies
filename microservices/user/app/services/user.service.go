@@ -1,9 +1,11 @@
 package services
 
 import (
+	"errors"
 	"user/app/api/dto"
 	model "user/app/db/models"
 	"user/app/db/queries"
+	voc "user/app/vocabulary"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -18,6 +20,50 @@ func DeleteUser(id string) (*model.User, error) {
 
 func GetUser(id string) (*model.User, error) {
 	return queries.SQLSession.GetUser(id)
+}
+
+func UpdateUser(data *dto.UpdateUserDto, id string) (*model.User, error) {
+	newValues, err := checkUpdateValues(data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(newValues) == 0 {
+		return nil, errors.New(voc.EMPTY_DATA_FOR_UPDATE_USER)
+	}
+
+	return queries.SQLSession.UpdateUser(newValues, id)
+}
+
+func checkUpdateValues(data *dto.UpdateUserDto) (map[string]string, error) {
+	if data == nil {
+		return nil, nil
+	}
+	var newValues map[string]string = make(map[string]string)
+
+	if data.FirstName != "" {
+		newValues["\"firstName\""] = data.FirstName
+	}
+
+	if data.LastName != "" {
+		newValues["\"lastName\""] = data.LastName
+	}
+
+	if data.Birthday != "" {
+		newValues["birthday"] = data.Birthday
+	}
+
+	if data.Password != "" {
+		hash, err := hashPassword(data.Password)
+
+		if err != nil {
+			return nil, err
+		}
+		newValues["password"] = hash
+	}
+
+	return newValues, nil
 }
 
 func CreateUser(data *dto.CreateUserDto) (*model.User, error) {
